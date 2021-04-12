@@ -1,0 +1,11 @@
+version: "2"
+
+services:  
+  mongodb:
+    image: mongo:3.6.1
+    container_name: mongodb
+    volumes: 
+      - ~/mongo/data:/data/db
+    ports:
+      - "27017:27017"
+    command: mongod
