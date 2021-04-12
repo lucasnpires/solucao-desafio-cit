@@ -7,7 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,20 +29,20 @@ public class JobController implements JobDefinition {
     @GetMapping
     @Override
 	public ResponseEntity<List<Job>> consultar() {
-		return new ResponseEntity<List<Job>>(jobService.findAll(), HttpStatus.OK);
+		return jobService.findAll();
 	}
 	
 	
     @PostMapping
     @Override
 	public ResponseEntity<Job> addJob(@Valid @RequestBody JobRequest jobRequest) {
-		return new ResponseEntity<Job>(jobService.addJob(jobRequest), HttpStatus.CREATED);
+		return jobService.addJob(jobRequest);
 	}
 
 
     @DeleteMapping
     @Override
 	public ResponseEntity<Void> deleteJob(String codigo) {
-    	return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+    	return jobService.deleteJob(codigo);
 	}
 }

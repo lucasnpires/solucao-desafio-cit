@@ -1,8 +1,8 @@
 package br.com.lucas.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -19,30 +19,46 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class JobService {
-	
+
 	@Autowired
 	private JobRepository jobRepository;
-	
+
 	@Autowired
 	private JobUtil jobUtil;
 
-	public List<Job> findAll() {
-		return jobRepository.findAll();
+	public ResponseEntity<List<Job>> findAll() {
+		List<Job> listJobs = new ArrayList<Job>();
+		
+		try {
+			 listJobs = jobRepository.findAll();
+		}catch (Exception e) {
+			log.error(e.getMessage());
+			new ResponseEntity<List<Job>>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<List<Job>>(listJobs, HttpStatus.OK);
 	}
 
-	public Job addJob(@Valid JobRequest jobRequest) {
-		return jobRepository.save(jobUtil.convertJobRequestToJob(jobRequest));
+	public ResponseEntity<Job> addJob(@Valid JobRequest jobRequest) {
+		Job save = new Job();
+
+		try {
+			save = jobRepository.save(jobUtil.convertJobRequestToJob(jobRequest));
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			return new ResponseEntity<Job>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<Job>(save, HttpStatus.CREATED);
 	}
 
 	public ResponseEntity<Void> deleteJob(String id) {
 		Job jobFindById = jobRepository.findById(id).orElse(new Job());
-		
-		if(Objects.isNull(jobFindById.getId())) {
+
+		if (Objects.isNull(jobFindById.getId())) {
 			log.info("Não existe job com este id {} para deletar", id);
 			return new ResponseEntity<Void>(HttpStatus.BAD_GATEWAY);
 		} else {
-			jobRepository.delete(jobFindById);			
-		}			
+			jobRepository.delete(jobFindById);
+		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 }
