@@ -26,12 +26,12 @@ public class JobRequest {
     @ApiModelProperty(value = "Descrição do Job. Ex.: Importação de dados de integração", example = "Importação de dados de integração", required = true)
 	private String descricao;
 
-    @ApiModelProperty(value = "Data Máxima de Conclusão do Job. Ex.: 2019-11-11 08:00:00", example = "2021-04-12T18:36:33.932Z", required = true)
+    @ApiModelProperty(value = "Data Máxima de Conclusão do Job. Ex.: 2019-11-11 08:00:00", example = "2019-11-11 08:00:00", required = true)
     @NotEmpty
-	private Date dtMaxConclusao;
+	private String dtMaxConclusao;
 
     @ApiModelProperty(value = "Tempo estimado de execução do Job. Ex.: 2", example = "2", required = true)
     @NotEmpty
-	private Long tempoEstimado;
+	private Integer tempoEstimado;
 
 }

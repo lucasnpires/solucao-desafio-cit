@@ -7,7 +7,9 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 import br.com.lucas.domain.Job;
+import br.com.lucas.domain.request.IntervaloExecucaoRequest;
 import br.com.lucas.domain.request.JobRequest;
+import br.com.lucas.domain.response.IntervalExecutionResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -29,5 +31,10 @@ public interface JobDefinition {
             notes = "Deletar um Job",
             httpMethod = "DELETE")
 	public ResponseEntity<Void> deleteJob(String codigo);
+	
+	@ApiOperation(value = "Buscar Jobs por Intervalo de Execução",
+            notes = "Buscar Jobs por Intervalo de Execução",
+            httpMethod = "POST")
+	public ResponseEntity<IntervalExecutionResponse> findJobsPorIntervaloExecucao(IntervaloExecucaoRequest intervaloExecucaoRequest);
 
 }

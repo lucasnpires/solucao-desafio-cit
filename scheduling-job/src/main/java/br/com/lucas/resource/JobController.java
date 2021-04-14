@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.lucas.domain.Job;
+import br.com.lucas.domain.request.IntervaloExecucaoRequest;
 import br.com.lucas.domain.request.JobRequest;
+import br.com.lucas.domain.response.IntervalExecutionResponse;
 import br.com.lucas.service.JobService;
 
 @RestController
@@ -44,5 +46,12 @@ public class JobController implements JobDefinition {
     @Override
 	public ResponseEntity<Void> deleteJob(String codigo) {
     	return jobService.deleteJob(codigo);
+	}
+
+    
+    @PostMapping(value = "/execution")
+	@Override
+	public ResponseEntity<IntervalExecutionResponse> findJobsPorIntervaloExecucao(IntervaloExecucaoRequest intervaloExecucaoRequest) {
+		return jobService.findJobsPorIntervaloExecucao(intervaloExecucaoRequest);
 	}
 }
