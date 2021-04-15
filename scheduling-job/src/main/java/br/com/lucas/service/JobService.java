@@ -1,10 +1,8 @@
 package br.com.lucas.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -15,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.lucas.domain.Job;
+import br.com.lucas.domain.RecuperarListDTO;
 import br.com.lucas.domain.request.IntervaloExecucaoRequest;
 import br.com.lucas.domain.request.JobRequest;
 import br.com.lucas.domain.response.IntervalExecutionResponse;
@@ -71,68 +70,67 @@ public class JobService {
 	public ResponseEntity<IntervalExecutionResponse> findJobsPorIntervaloExecucao(
 			IntervaloExecucaoRequest intervaloExecucaoRequest) {
 		return new ResponseEntity<IntervalExecutionResponse>(
-				IntervalExecutionResponse.builder().jobs(getListJobs()).build(), HttpStatus.OK);
+				IntervalExecutionResponse.builder().jobsASeremExecutados(getListJobs()).build(), HttpStatus.OK);
 	}
 
 	private List<List<JobResponse>> getListJobs() {
 		List<List<JobResponse>> lista = new LinkedList<List<JobResponse>>();
 
-		List<JobResponse> listaResponse = new ArrayList<JobResponse>();
-		List<JobResponse> listaResponseRestante = new ArrayList<JobResponse>();
-
 		List<Job> jobs = jobRepository.findAll();
-
-//		jobs.forEach(job -> {
-//			horas.add(job.getTempoEstimado());
-//		});
-
-		// dentro de cada lista pode ter no máximo 8 horas de duração de jobs
-
-//		Double qtdListas = somaHora / 8;
-//		log.info("soma hora: {}", somaHora);
-//		log.info("qtd listas: {}", qtdListas);
 		
+		List<Integer> listTempo = carregarListaTempo(jobs);
 		
-		//Map<Integer, List<JobResponse>> map = new HashMap<Integer, List<JobResponse>>();
-		//Integer contador=1;
+		Integer totalHoras = listTempo
+		        .stream()
+		        .reduce(Integer::sum)
+		        .get();
 		
-		Double somaHora = 0d;
+		Integer qtdListas = (totalHoras / 8) + 1;
 		
-		for(Job job: jobs) {
-			
-			//map.put(contador, listaResponse);
-			
-					
-			//getSomaHoras(horas);
-			
-			somaHora = somaHora + job.getTempoEstimado();
-			
-			log.info("somaHora: {}", somaHora);
-			
-			if(somaHora > 8) {
-				listaResponseRestante.add(JobResponse.builder().sequencialJob(job.getSequencial()).build());
-			} else {
-				listaResponse.add(JobResponse.builder().sequencialJob(job.getSequencial()).build());			
-			} 
+		Integer indice = 0;
+		
+		for(int contListas = 0; contListas < qtdListas; contListas++) {
+			RecuperarListDTO recuperarList = new RecuperarListDTO();
+			recuperarList = recuperarList(indice, jobs);
+			indice = recuperarList.getIndice();
+			lista.add(recuperarList.getLista());
 		}
-
-		log.info("tamanho lista restante: {}",listaResponseRestante.size());
-		log.info("tamanho lista: {}",listaResponse.size());
-		lista.add(listaResponse);
-		lista.add(listaResponseRestante);
 
 		return lista;
 	}
-
-	private Double getSomaHoras(List<Long> horas) {
-		Long somaHora = 0L;
-
-		for (Long hora : horas) {
-			somaHora = somaHora + hora;
+	
+	private RecuperarListDTO recuperarList(Integer indice, List<Job> jobs) {
+		Integer soma = 0;
+		Integer indiceFinal = 0; 
+		List<JobResponse> listRetorno = new ArrayList<JobResponse>();
+		RecuperarListDTO retorno = new RecuperarListDTO();
+		
+		for(int i = indice; i < jobs.size(); i++) {
+			Job job = jobs.get(i);
+			soma = soma + job.getTempoEstimado();
+			
+			if(soma <= 8) {
+				listRetorno.add(JobResponse.builder().sequencialJob(job.getSequencial()).build());
+			} else {
+				indiceFinal = i;
+				break;				
+			} 
 		}
-
-		return ((Number) somaHora).doubleValue();
+		
+		retorno.setIndice(indiceFinal);
+		retorno.setLista(listRetorno);
+		return retorno;
 	}
+	
+	private List<Integer> carregarListaTempo(List<Job> jobs) {
+		List<Integer> listTempo = new ArrayList<Integer>();
+		
+		for(Job job : jobs) {
+			listTempo.add(job.getTempoEstimado());
+		}
+		return listTempo;	
+	}
+
 
 	public Integer getMaxSequencial() {
 		Integer max=0;

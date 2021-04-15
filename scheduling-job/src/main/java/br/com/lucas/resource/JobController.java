@@ -51,7 +51,7 @@ public class JobController implements JobDefinition {
     
     @PostMapping(value = "/execution")
 	@Override
-	public ResponseEntity<IntervalExecutionResponse> findJobsPorIntervaloExecucao(IntervaloExecucaoRequest intervaloExecucaoRequest) {
+	public ResponseEntity<IntervalExecutionResponse> findJobsPorIntervaloExecucao(@Valid @RequestBody IntervaloExecucaoRequest intervaloExecucaoRequest) {
 		return jobService.findJobsPorIntervaloExecucao(intervaloExecucaoRequest);
 	}
 }

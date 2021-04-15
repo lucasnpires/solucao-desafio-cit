@@ -18,6 +18,6 @@ public class IntervalExecutionResponse implements Serializable{
 	
 	//private List<Job> jobs;
 	
-	private List<List<JobResponse>> jobs;
+	private List<List<JobResponse>> jobsASeremExecutados;
 
 }

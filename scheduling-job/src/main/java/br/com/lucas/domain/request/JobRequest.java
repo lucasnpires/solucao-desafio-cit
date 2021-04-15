@@ -1,7 +1,5 @@
 package br.com.lucas.domain.request;
 
-import java.util.Date;
-
 import javax.validation.constraints.NotEmpty;
 
 import io.swagger.annotations.ApiModel;
