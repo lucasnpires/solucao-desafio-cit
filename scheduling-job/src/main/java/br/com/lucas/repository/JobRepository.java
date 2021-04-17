@@ -9,8 +9,6 @@ import br.com.lucas.domain.Job;
 @Repository
 public interface JobRepository extends MongoRepository<Job, String> {
 	
-	//@Aggregation(pipeline = { "{$group: { _id: '', total: {$max: $sequencial }}}" })
 	public Job findFirstByOrderBySequencialDesc();
 
-	//public Job findTopByOrderBySequencialDesc();
 }

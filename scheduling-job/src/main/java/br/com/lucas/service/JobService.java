@@ -1,6 +1,9 @@
 package br.com.lucas.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -70,13 +73,13 @@ public class JobService {
 	public ResponseEntity<IntervalExecutionResponse> findJobsPorIntervaloExecucao(
 			IntervaloExecucaoRequest intervaloExecucaoRequest) {
 		return new ResponseEntity<IntervalExecutionResponse>(
-				IntervalExecutionResponse.builder().jobsASeremExecutados(getListJobs()).build(), HttpStatus.OK);
+				IntervalExecutionResponse.builder().jobsASeremExecutados(getListJobs(intervaloExecucaoRequest)).build(), HttpStatus.OK);
 	}
 
-	private List<List<JobResponse>> getListJobs() {
+	private List<List<JobResponse>> getListJobs(IntervaloExecucaoRequest intervaloExecucaoRequest) {
 		List<List<JobResponse>> lista = new LinkedList<List<JobResponse>>();
 
-		List<Job> jobs = jobRepository.findAll();
+		List<Job> jobs = buscarPorDataMaximaConclusao(intervaloExecucaoRequest);
 		
 		List<Integer> listTempo = carregarListaTempo(jobs);
 		
@@ -85,7 +88,14 @@ public class JobService {
 		        .reduce(Integer::sum)
 		        .get();
 		
-		Integer qtdListas = (totalHoras / 8) + 1;
+		Integer qtdListas = 0;
+		
+		if (totalHoras / 8 == 1) {
+			qtdListas = 1;
+		} else {
+			qtdListas = (totalHoras / 8) + 1;	
+		}
+		
 		
 		Integer indice = 0;
 		
@@ -99,6 +109,63 @@ public class JobService {
 		return lista;
 	}
 	
+	
+	private String compare(Date data1, Date data2) {
+		int result = data1.compareTo(data2);
+		log.info("Date1: " + data1);
+		log.info("Date2: " + data2);		
+		System.out.println("Date1: " + data1);
+		System.out.println("Date2: " + data2);
+
+		String resultComparacao = "";
+
+		if (result == 0) {
+			resultComparacao = "IGUAL";
+		} else if (result > 0) {
+			resultComparacao = "MAIOR";
+		} else if (result < 0) {
+			resultComparacao = "MENOR";
+		}
+
+		return resultComparacao;
+	}
+	
+	private Date convertStringToDate(String data) throws ParseException {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date retorno = formatter.parse(data);
+
+		return retorno;
+	}
+
+	
+	private List<Job> buscarPorDataMaximaConclusao(IntervaloExecucaoRequest intervaloExecucaoRequest) {
+		
+		List<Job> listRetorno = new ArrayList<Job>();
+		
+		List<Job> jobsBase = jobRepository.findAll();
+		
+		String dtHoraInicio = intervaloExecucaoRequest.getDtInicio() + " " + intervaloExecucaoRequest.getHoraInicio();
+		String dtHoraFim = intervaloExecucaoRequest.getDtFim() + " " + intervaloExecucaoRequest.getHoraFim();
+
+		for(Job job: jobsBase) {
+			
+			try {
+				String compareDtInicio = compare(convertStringToDate(job.getDtMaxConclusao()), convertStringToDate(dtHoraInicio));
+				String compareDtFim = compare(convertStringToDate(job.getDtMaxConclusao()), convertStringToDate(dtHoraFim));
+				
+				log.info(job.toString());
+				
+				if (compareDtInicio.equals("MAIOR") && compareDtFim.equals("MENOR")) {
+					listRetorno.add(job);
+				}				
+			} catch (ParseException e) {
+				log.error(e.getMessage());
+			}	
+		}
+		
+		return listRetorno;
+	}
+
 	private RecuperarListDTO recuperarList(Integer indice, List<Job> jobs) {
 		Integer soma = 0;
 		Integer indiceFinal = 0; 

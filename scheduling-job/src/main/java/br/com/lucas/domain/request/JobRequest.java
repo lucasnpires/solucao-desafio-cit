@@ -2,6 +2,8 @@ package br.com.lucas.domain.request;
 
 import javax.validation.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -31,5 +33,20 @@ public class JobRequest {
     @ApiModelProperty(value = "Tempo estimado de execução do Job. Ex.: 2", example = "2", required = true)
     @NotEmpty
 	private Integer tempoEstimado;
+    
+    @JsonProperty("checkValue")
+    private String checkValue;
+    
+    
+
+    /**
+     * Check Value da chave.
+     *
+     * @return checkValue
+     **/
+    @ApiModelProperty(example = "08XDE7", value = "Check Value da chave. ")
+    public String getCheckValue() {
+        return checkValue;
+    }
 
 }
